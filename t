@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8" />
-<title>예쁜 뽀모도로 타이머</title>
+<title>뽀모도로 타이머</title>
 <style>
   :root {
     --main-bg: #f4f6fa;
