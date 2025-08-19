@@ -489,51 +489,40 @@
 
   // 현재 모드 상태 저장
   function saveCurrentModeState() {
-    const state = modeStates[currentMode];
-    state.running = running;
-    state.paused = paused;
-    state.timer = timer;
-    state.totalSeconds = totalSeconds;
-    
-    if (currentMode === 0) { // 뽀모도로
-      state.currentCycle = currentCycle;
-      state.isWork = isWork;
-    }
+    // 현재 표시된 상태는 저장하지 않고, 각 모드별 독립 상태만 유지
   }
 
   // 모드 상태 복원
   function restoreModeState() {
     const state = modeStates[currentMode];
-    running = state.running;
-    paused = state.paused;
-    timer = state.timer;
-    totalSeconds = state.totalSeconds;
-    
-    if (currentMode === 0) { // 뽀모도로
-      currentCycle = state.currentCycle;
-      isWork = state.isWork;
-    }
     
     // UI 상태 업데이트
-    updateButtonStates();
-    if (running) {
-      updateTimer();
+    updateButtonStates(state);
+    if (state.running) {
+      updateTimerDisplay(state);
     }
   }
 
   // 버튼 상태 업데이트
-  function updateButtonStates() {
-    startBtn.disabled = running;
-    pauseBtn.disabled = !running;
-    stopBtn.disabled = !running;
+  function updateButtonStates(state) {
+    startBtn.disabled = state.running;
+    pauseBtn.disabled = !state.running;
+    stopBtn.disabled = !state.running;
     
-    if (running && paused) {
+    if (state.running && state.paused) {
       pauseBtn.textContent = 'RESUME';
       pauseBtn.classList.add('paused');
     } else {
       pauseBtn.textContent = 'PAUSE';
       pauseBtn.classList.remove('paused');
     }
+  }
+
+  // 타이머 표시 업데이트
+  function updateTimerDisplay(state) {
+    const minutes = Math.floor(state.totalSeconds / 60);
+    const seconds = state.totalSeconds % 60;
+    timerEl.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
   }
 
   function updateMode() {
@@ -547,22 +536,31 @@
     switch(currentMode) {
       case 0: // 뽀모도로
         pomodoroInputs.classList.remove('hidden');
-        if (!running) {
+        const state0 = modeStates[0];
+        if (!state0.running) {
           timerEl.textContent = `${workInput.value.toString().padStart(2,'0')}:00`;
+        } else {
+          updateTimerDisplay(state0);
         }
         break;
       case 1: // 타이머
         timerInputs.classList.remove('hidden');
-        if (!running) {
+        const state1 = modeStates[1];
+        if (!state1.running) {
           const timerMinutes = parseInt(document.getElementById('timerMinutes').value, 10) || 10;
           timerEl.textContent = `${timerMinutes.toString().padStart(2,'0')}:00`;
+        } else {
+          updateTimerDisplay(state1);
         }
         break;
       case 2: // 스톱워치
         // 스톱워치는 입력 영역이 없으므로 빈 공간으로 동일한 높이 유지
         inputSection.style.minHeight = '44px';
-        if (!running) {
+        const state2 = modeStates[2];
+        if (!state2.running) {
           timerEl.textContent = '00:00';
+        } else {
+          updateTimerDisplay(state2);
         }
         break;
     }
@@ -615,8 +613,9 @@
   });
 
   function updateTimer() {
-    const minutes = Math.floor(totalSeconds / 60);
-    const seconds = totalSeconds % 60;
+    const state = modeStates[currentMode];
+    const minutes = Math.floor(state.totalSeconds / 60);
+    const seconds = state.totalSeconds % 60;
     timerEl.textContent = `${minutes.toString().padStart(2,'0')}:${seconds.toString().padStart(2,'0')}`;
   }
 
@@ -631,34 +630,50 @@
   }
 
   function startPomodoro() {
-    if (currentCycle >= cycles) {
-      timerEl.textContent = '🎉 완료! 🎉';
-      startBtn.disabled = false;
-      pauseBtn.disabled = true;
-      stopBtn.disabled = true;
-      running = false;
+    const state = modeStates[0];
+    
+    if (state.currentCycle >= state.cycles) {
+      if (currentMode === 0) timerEl.textContent = '🎉 완료! 🎉';
+      state.running = false;
+      if (currentMode === 0) {
+        startBtn.disabled = false;
+        pauseBtn.disabled = true;
+        stopBtn.disabled = true;
+      }
       return;
     }
-    if (isWork) {
-      totalSeconds = workMinutes * 60;
+    
+    if (state.isWork) {
+      state.totalSeconds = state.workMinutes * 60;
     } else {
-      totalSeconds = breakMinutes * 60;
+      state.totalSeconds = state.breakMinutes * 60;
     }
-    updateTimer();
-    running = true; paused = false; pauseBtn.disabled = false;
-    pauseBtn.textContent = 'PAUSE'; pauseBtn.classList.remove('paused');
-    timer = setInterval(() => {
-      if (!paused) {
-        totalSeconds--;
-        updateTimer();
-        if (totalSeconds <= 0) {
-          clearInterval(timer);
+    
+    if (currentMode === 0) updateTimer();
+    
+    state.running = true;
+    state.paused = false;
+    
+    if (currentMode === 0) {
+      pauseBtn.disabled = false;
+      pauseBtn.textContent = 'PAUSE';
+      pauseBtn.classList.remove('paused');
+    }
+    
+    state.timer = setInterval(() => {
+      if (!state.paused) {
+        state.totalSeconds--;
+        if (currentMode === 0) updateTimer();
+        
+        if (state.totalSeconds <= 0) {
+          clearInterval(state.timer);
           alarmSound.currentTime = 0;
           alarmSound.play();
-          flashScreen(3);
+          if (currentMode === 0) flashScreen(3);
+          
           setTimeout(() => {
-            if (!isWork) currentCycle++;
-            isWork = !isWork;
+            if (!state.isWork) state.currentCycle++;
+            state.isWork = !state.isWork;
             startPomodoro();
           }, 1000);
         }
@@ -667,108 +682,131 @@
   }
 
   function startRegularTimer() {
+    const state = modeStates[1];
     const minutes = parseInt(document.getElementById('timerMinutes').value, 10);
+    
     if (isNaN(minutes) || minutes <= 0) {
       alert('올바른 시간을 입력해주세요.');
-      startBtn.disabled = false;
-      pauseBtn.disabled = true;
-      stopBtn.disabled = true;
+      if (currentMode === 1) {
+        startBtn.disabled = false;
+        pauseBtn.disabled = true;
+        stopBtn.disabled = true;
+      }
       return;
     }
     
-    totalSeconds = minutes * 60;
-    updateTimer();
-    running = true; paused = false; pauseBtn.disabled = false;
-    pauseBtn.textContent = 'PAUSE'; pauseBtn.classList.remove('paused');
+    state.totalSeconds = minutes * 60;
+    state.timerMinutes = minutes;
     
-    timer = setInterval(() => {
-      if (!paused) {
-        totalSeconds--;
-        updateTimer();
-        if (totalSeconds <= 0) {
-          clearInterval(timer);
+    if (currentMode === 1) updateTimer();
+    
+    state.running = true;
+    state.paused = false;
+    
+    if (currentMode === 1) {
+      pauseBtn.disabled = false;
+      pauseBtn.textContent = 'PAUSE';
+      pauseBtn.classList.remove('paused');
+    }
+    
+    state.timer = setInterval(() => {
+      if (!state.paused) {
+        state.totalSeconds--;
+        if (currentMode === 1) updateTimer();
+        
+        if (state.totalSeconds <= 0) {
+          clearInterval(state.timer);
           alarmSound.currentTime = 0;
           alarmSound.play();
-          flashScreen(3);
-          timerEl.textContent = '⏰ 완료!';
-          running = false;
-          startBtn.disabled = false;
-          pauseBtn.disabled = true;
-          stopBtn.disabled = true;
+          if (currentMode === 1) {
+            flashScreen(3);
+            timerEl.textContent = '⏰ 완료!';
+          }
+          
+          state.running = false;
+          if (currentMode === 1) {
+            startBtn.disabled = false;
+            pauseBtn.disabled = true;
+            stopBtn.disabled = true;
+          }
         }
       }
     }, 1000);
   }
 
   function startStopwatch() {
-    totalSeconds = 0;
-    updateTimer();
-    running = true; paused = false; pauseBtn.disabled = false;
-    pauseBtn.textContent = 'PAUSE'; pauseBtn.classList.remove('paused');
+    const state = modeStates[2];
     
-    timer = setInterval(() => {
-      if (!paused) {
-        totalSeconds++;
-        updateTimer();
+    state.totalSeconds = 0;
+    if (currentMode === 2) updateTimer();
+    
+    state.running = true;
+    state.paused = false;
+    
+    if (currentMode === 2) {
+      pauseBtn.disabled = false;
+      pauseBtn.textContent = 'PAUSE';
+      pauseBtn.classList.remove('paused');
+    }
+    
+    state.timer = setInterval(() => {
+      if (!state.paused) {
+        state.totalSeconds++;
+        if (currentMode === 2) updateTimer();
       }
     }, 1000);
   }
 
   function stopTimer() {
-    clearInterval(timer);
+    const state = modeStates[currentMode];
+    
+    clearInterval(state.timer);
     
     // 현재 모드 상태 초기화
-    const state = modeStates[currentMode];
     state.running = false;
     state.paused = false;
     state.timer = null;
     state.totalSeconds = 0;
     
-    running = false;
-    paused = false;
     alarmSound.pause();
     alarmSound.currentTime = 0;
     
     if (currentMode === 0) { // 뽀모도로
       state.currentCycle = 0;
       state.isWork = true;
-      currentCycle = 0;
-      isWork = true;
-    }
-    
-    switch(currentMode) {
-      case 0: // 뽀모도로
-        timerEl.textContent = `${workInput.value.toString().padStart(2,'0')}:00`;
-        break;
-      case 1: // 타이머
-        const timerMinutes = parseInt(document.getElementById('timerMinutes').value, 10) || 10;
-        timerEl.textContent = `${timerMinutes.toString().padStart(2,'0')}:00`;
-        break;
-      case 2: // 스톱워치
-        timerEl.textContent = '00:00';
-        break;
+      timerEl.textContent = `${workInput.value.toString().padStart(2,'0')}:00`;
+    } else if (currentMode === 1) { // 타이머
+      const timerMinutes = parseInt(document.getElementById('timerMinutes').value, 10) || 10;
+      timerEl.textContent = `${timerMinutes.toString().padStart(2,'0')}:00`;
+    } else if (currentMode === 2) { // 스톱워치
+      timerEl.textContent = '00:00';
     }
     
     startBtn.disabled = false;
-    pauseBtn.disabled = true; pauseBtn.textContent = 'PAUSE'; pauseBtn.classList.remove('paused');
+    pauseBtn.disabled = true;
+    pauseBtn.textContent = 'PAUSE';
+    pauseBtn.classList.remove('paused');
     stopBtn.disabled = true;
   }
 
   function pauseTimer() {
-    if (running && !paused) {
-      paused = true;
+    const state = modeStates[currentMode];
+    
+    if (state.running && !state.paused) {
+      state.paused = true;
       pauseBtn.textContent = 'RESUME';
       pauseBtn.classList.add('paused');
-    } else if (running && paused) {
-      paused = false;
+    } else if (state.running && state.paused) {
+      state.paused = false;
       pauseBtn.textContent = 'PAUSE';
       pauseBtn.classList.remove('paused');
     }
   }
 
   startBtn.addEventListener('click', () => {
-    // 현재 모드 상태 업데이트
     const state = modeStates[currentMode];
+    
+    // 현재 모드 상태 업데이트
     state.running = true;
     state.paused = false;
     
@@ -778,10 +816,11 @@
     
     switch(currentMode) {
       case 0: // 뽀모도로
-        workMinutes = parseInt(workInput.value, 10);
-        breakMinutes = parseInt(breakInput.value, 10);
-        cycles = parseInt(cyclesInput.value, 10);
-        if (isNaN(workMinutes) || workMinutes <= 0 || isNaN(breakMinutes) || breakMinutes <= 0 || isNaN(cycles) || cycles <= 0) {
+        const workMin = parseInt(workInput.value, 10);
+        const breakMin = parseInt(breakInput.value, 10);
+        const cycleCount = parseInt(cyclesInput.value, 10);
+        
+        if (isNaN(workMin) || workMin <= 0 || isNaN(breakMin) || breakMin <= 0 || isNaN(cycleCount) || cycleCount <= 0) {
           alert('모든 입력값은 양의 정수여야 합니다.');
           state.running = false;
           startBtn.disabled = false;
@@ -789,8 +828,10 @@
           stopBtn.disabled = true;
           return;
         }
-        currentCycle = 0;
-        isWork = true;
+        
+        state.workMinutes = workMin;
+        state.breakMinutes = breakMin;
+        state.cycles = cycleCount;
         state.currentCycle = 0;
         state.isWork = true;
         startPomodoro();
@@ -802,9 +843,6 @@
         startStopwatch();
         break;
     }
-    
-    // 타이머 참조를 상태에 저장
-    state.timer = timer;
   });
 
   stopBtn.addEventListener('click', stopTimer);
