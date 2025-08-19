@@ -5,16 +5,14 @@
 <title>타이머</title>
 <style>
   :root {
-    --main-bg: #f4f6fa;
     --primary: #6b8eef;
     --accent: #f99ca9;
-    --border: #dde5ee;
     --text-dark: #222f3e;
     --text-light: #797d8c;
-    --shadow: 0 4px 16px 0 #aeccfa50;
+    --shadow: 0 2px 8px 0 rgba(0,0,0,0.1);
   }
   body {
-    background: var(--main-bg);
+    background: transparent;
     min-height: 100vh;
     margin: 0;
     display: flex; flex-direction: column; align-items: center; justify-content: center;
@@ -24,14 +22,14 @@
   }
   .timer-container {
     background: #fff;
-    padding: 24px 20px;
+    padding: 16px;
     border-radius: 16px;
     box-shadow: var(--shadow);
     display: inline-block;
     min-width: 280px;
     max-width: 400px;
     width: 100%;
-    border: 1px solid var(--border);
+    border: 1px solid var(--primary);
     text-align: center;
     position: relative;
     box-sizing: border-box;
@@ -62,7 +60,8 @@
   }
   .top-btn:hover {
     transform: scale(1.1);
-    background: rgba(107, 142, 239, 0.1);
+    background: var(--primary);
+    color: #fff;
   }
   
   /* 설정 패널 */
@@ -71,7 +70,7 @@
     top: 40px;
     right: 8px;
     background: #fff;
-    border: 1px solid var(--border);
+    border: 1px solid var(--primary);
     border-radius: 12px;
     padding: 16px;
     box-shadow: var(--shadow);
@@ -83,13 +82,13 @@
     display: block;
   }
   .settings-section {
-    margin-bottom: 16px;
+    margin-bottom: 12px;
   }
   .settings-section:last-child {
     margin-bottom: 0;
   }
   .settings-section h4 {
-    margin: 0 0 8px 0;
+    margin: 0 0 6px 0;
     color: var(--text-dark);
     font-size: 12px;
   }
@@ -102,7 +101,7 @@
   }
   .mode-option {
     padding: 4px 8px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--primary);
     background: transparent;
     color: var(--text-light);
     border-radius: 6px;
@@ -118,7 +117,7 @@
   
   /* 색상 설정 */
   .color-section {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
   .color-section:last-child {
     margin-bottom: 0;
@@ -127,13 +126,13 @@
     display: block;
     font-size: 11px;
     color: var(--text-light);
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
   .color-row {
     display: flex;
     gap: 4px;
     align-items: center;
-    margin-bottom: 6px;
+    margin-bottom: 4px;
   }
   .color-option {
     width: 20px;
@@ -171,8 +170,8 @@
 
   /* 입력 섹션 */
   .inputs {
-    margin-bottom: 16px;
-    min-height: 24px;
+    margin-bottom: 2px;
+    min-height: 44px; /* 고정 높이로 모든 모드에서 동일한 크기 유지 */
   }
   .inputs.hidden {
     display: none;
@@ -183,48 +182,64 @@
   #pomodoroInputs.hidden, #timerInputs.hidden {
     display: none;
   }
+  
+  /* 뽀모도로 입력 레이아웃 - 반응형 */
+  .pomodoro-inputs-wrapper {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 4px;
+    justify-content: center;
+    align-items: center;
+    font-size: 12px;
+    color: var(--text-light);
+  }
+  
   label {
     font-size: 11px;
     color: var(--text-light);
-    margin: 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
   }
   input[type="number"] {
     padding: 2px;
     width: 30px;
     height: 18px;
     font-size: 11px;
-    border: 1px solid var(--border);
+    border: 1px solid var(--primary);
     border-radius: 3px;
     text-align: center;
     outline: none;
     color: var(--primary);
-    background: #f2f7fa;
+    background: #fff;
     -moz-appearance: textfield;
-    margin: 0 2px;
   }
   input[type="number"]::-webkit-outer-spin-button,
   input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
     margin: 0;
   }
+  input[type="number"]:focus {
+    border-color: var(--accent);
+  }
   
   /* 타이머 표시 */
   #timer {
-    font-size: clamp(36px, 8vw, 56px);
+    font-size: clamp(32px, 7vw, 48px);
     color: var(--primary);
-    margin: 28px 0 16px 0;
+    margin: 0px 0 8px 0;
     font-weight: 700;
     letter-spacing: 2px;
   }
   
   /* 버튼 그룹 */
   .btn-group {
-    margin-top: 28px;
+    margin-top: 12px;
     display: flex; justify-content: center; gap: 8px;
   }
   button.control-btn {
     font-size: 12px;
-    padding: 8px 12px;
+    padding: 6px 10px;
     background: var(--primary);
     color: #fff;
     border: none;
@@ -240,13 +255,15 @@
     transform: translateY(-1px);
   }
   button.control-btn:disabled {
-    background: #c8d2e8;
+    background: var(--primary);
     color: #fff;
+    opacity: 0.5;
     cursor: not-allowed;
     transform: none;
   }
   button.control-btn:disabled:hover {
-    background: #c8d2e8;
+    background: var(--primary);
+    opacity: 0.5;
   }
   #pauseBtn.paused {
     background: var(--accent);
@@ -261,9 +278,9 @@
   }
   @keyframes flash {
     0%   { background: #fff; }
-    30%  { background: #fefdcd; }
-    50%  { background: #ffe4ef; }
-    80%  { background: #fffbea; }
+    30%  { background: var(--accent); }
+    50%  { background: var(--primary); }
+    80%  { background: var(--accent); }
     100% { background: #fff; }
   }
 
@@ -274,39 +291,62 @@
     }
     .timer-container {
       min-width: 250px;
-      padding: 20px 16px;
+      padding: 12px;
     }
     #timer {
-      font-size: clamp(32px, 10vw, 48px);
-      margin: 24px 0 12px 0;
+      font-size: clamp(28px, 8vw, 40px);
+      margin: 0px 0 6px 0;
     }
     .btn-group {
       gap: 6px;
-      margin-top: 24px;
+      margin-top: 10px;
     }
     button.control-btn {
       font-size: 11px;
-      padding: 6px 10px;
+      padding: 5px 8px;
       min-width: 45px;
     }
     .settings-panel {
       min-width: 160px;
       padding: 12px;
     }
+    .inputs {
+      margin-bottom: 0px;
+    }
+    
+    /* 뽀모도로 입력을 한 줄로 유지 */
+    .pomodoro-inputs-wrapper {
+      flex-direction: row;
+      justify-content: center;
+      gap: 3px;
+      width: 100%;
+      font-size: 11px;
+    }
+    
+    .timer-container {
+      padding-top: 20px; /* 상단 여백 추가 */
+    }
   }
 
   @media (max-width: 320px) {
     .timer-container {
       min-width: 220px;
-      padding: 16px 12px;
+      padding: 10px;
+      padding-top: 24px;
     }
     label {
       font-size: 10px;
-      margin: 0 3px;
     }
     input[type="number"] {
       width: 28px;
       height: 16px;
+      font-size: 10px;
+    }
+    .pomodoro-inputs-wrapper {
+      flex-direction: row;
+      justify-content: center;
+      gap: 2px;
+      width: 100%;
       font-size: 10px;
     }
   }
@@ -364,20 +404,18 @@
 
   <div class="inputs" id="inputSection">
     <div id="pomodoroInputs">
-      <label>타이머
-        <input type="number" id="workInput" value="25" min="1" max="180">분
-      </label>
-      <label>휴식
-        <input type="number" id="breakInput" value="5" min="1" max="60">분
-      </label>
-      <label>사이클
+      <div class="pomodoro-inputs-wrapper">
+        <input type="number" id="workInput" value="25" min="1" max="180">분 / 
+        <input type="number" id="breakInput" value="5" min="1" max="60">분 / 
         <input type="number" id="cyclesInput" value="4" min="1" max="20">회
-      </label>
+      </div>
     </div>
     <div id="timerInputs" class="hidden">
-      <label>
-        <input type="number" id="timerMinutes" value="10" min="1" max="999">분
-      </label>
+      <div style="display: flex; justify-content: center; align-items: center;">
+        <label>
+          <input type="number" id="timerMinutes" value="10" min="1" max="999">분
+        </label>
+      </div>
     </div>
   </div>
 
@@ -420,28 +458,83 @@
   const accentPicker = document.getElementById('accentPicker');
   const modeOptions = document.querySelectorAll('.mode-option');
 
-  // 로컬스토리지에서 테마 불러오기
-  const savedTheme = localStorage.getItem('timerTheme');
-  if (savedTheme) {
-    const theme = JSON.parse(savedTheme);
-    document.documentElement.style.setProperty('--primary', theme.primary);
-    document.documentElement.style.setProperty('--accent', theme.accent);
-    primaryPicker.value = theme.primary;
-    accentPicker.value = theme.accent;
+  // 초기 테마 설정
+  function updateTheme(primary, accent) {
+    document.documentElement.style.setProperty('--primary', primary);
+    document.documentElement.style.setProperty('--accent', accent);
   }
+
+  // 각 모드별 상태 저장
+  let modeStates = {
+    0: { running: false, paused: false, timer: null, totalSeconds: 0, currentCycle: 0, isWork: true }, // 뽀모도로
+    1: { running: false, paused: false, timer: null, totalSeconds: 0 }, // 타이머
+    2: { running: false, paused: false, timer: null, totalSeconds: 0 }  // 스톱워치
+  };
 
   // 모드 변경
   modeOptions.forEach(option => {
     option.addEventListener('click', () => {
-      if (running) {
-        stopTimer();
-      }
+      // 현재 모드 상태 저장
+      saveCurrentModeState();
+      
       modeOptions.forEach(opt => opt.classList.remove('active'));
       option.classList.add('active');
       currentMode = parseInt(option.dataset.mode);
+      
+      // 새 모드 상태 복원
+      restoreModeState();
       updateMode();
     });
   });
+
+  // 현재 모드 상태 저장
+  function saveCurrentModeState() {
+    const state = modeStates[currentMode];
+    state.running = running;
+    state.paused = paused;
+    state.timer = timer;
+    state.totalSeconds = totalSeconds;
+    
+    if (currentMode === 0) { // 뽀모도로
+      state.currentCycle = currentCycle;
+      state.isWork = isWork;
+    }
+  }
+
+  // 모드 상태 복원
+  function restoreModeState() {
+    const state = modeStates[currentMode];
+    running = state.running;
+    paused = state.paused;
+    timer = state.timer;
+    totalSeconds = state.totalSeconds;
+    
+    if (currentMode === 0) { // 뽀모도로
+      currentCycle = state.currentCycle;
+      isWork = state.isWork;
+    }
+    
+    // UI 상태 업데이트
+    updateButtonStates();
+    if (running) {
+      updateTimer();
+    }
+  }
+
+  // 버튼 상태 업데이트
+  function updateButtonStates() {
+    startBtn.disabled = running;
+    pauseBtn.disabled = !running;
+    stopBtn.disabled = !running;
+    
+    if (running && paused) {
+      pauseBtn.textContent = 'RESUME';
+      pauseBtn.classList.add('paused');
+    } else {
+      pauseBtn.textContent = 'PAUSE';
+      pauseBtn.classList.remove('paused');
+    }
+  }
 
   function updateMode() {
     const pomodoroInputs = document.getElementById('pomodoroInputs');
@@ -454,25 +547,25 @@
     switch(currentMode) {
       case 0: // 뽀모도로
         pomodoroInputs.classList.remove('hidden');
-        timerEl.textContent = '25:00';
+        if (!running) {
+          timerEl.textContent = `${workInput.value.toString().padStart(2,'0')}:00`;
+        }
         break;
       case 1: // 타이머
         timerInputs.classList.remove('hidden');
-        timerEl.textContent = '10:00';
+        if (!running) {
+          const timerMinutes = parseInt(document.getElementById('timerMinutes').value, 10) || 10;
+          timerEl.textContent = `${timerMinutes.toString().padStart(2,'0')}:00`;
+        }
         break;
       case 2: // 스톱워치
-        timerEl.textContent = '00:00';
+        // 스톱워치는 입력 영역이 없으므로 빈 공간으로 동일한 높이 유지
+        inputSection.style.minHeight = '44px';
+        if (!running) {
+          timerEl.textContent = '00:00';
+        }
         break;
     }
-  }
-
-  // 테마 저장
-  function saveTheme() {
-    const theme = {
-      primary: getComputedStyle(document.documentElement).getPropertyValue('--primary').trim(),
-      accent: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()
-    };
-    localStorage.setItem('timerTheme', JSON.stringify(theme));
   }
 
   // 설정 패널 토글
@@ -505,24 +598,20 @@
       } else {
         accentPicker.value = color;
       }
-      
-      saveTheme();
     });
   });
 
-  // 스포이드 색상 선택
+  // 커스텀 색상 선택
   primaryPicker.addEventListener('change', (e) => {
     const color = e.target.value;
     document.documentElement.style.setProperty('--primary', color);
     document.querySelectorAll('[data-type="primary"]').forEach(opt => opt.classList.remove('active'));
-    saveTheme();
   });
 
   accentPicker.addEventListener('change', (e) => {
     const color = e.target.value;
     document.documentElement.style.setProperty('--accent', color);
     document.querySelectorAll('[data-type="accent"]').forEach(opt => opt.classList.remove('active'));
-    saveTheme();
   });
 
   function updateTimer() {
@@ -627,16 +716,29 @@
 
   function stopTimer() {
     clearInterval(timer);
+    
+    // 현재 모드 상태 초기화
+    const state = modeStates[currentMode];
+    state.running = false;
+    state.paused = false;
+    state.timer = null;
+    state.totalSeconds = 0;
+    
     running = false;
     paused = false;
     alarmSound.pause();
     alarmSound.currentTime = 0;
     
+    if (currentMode === 0) { // 뽀모도로
+      state.currentCycle = 0;
+      state.isWork = true;
+      currentCycle = 0;
+      isWork = true;
+    }
+    
     switch(currentMode) {
       case 0: // 뽀모도로
-        timerEl.textContent = '';
-        currentCycle = 0;
-        isWork = true;
+        timerEl.textContent = `${workInput.value.toString().padStart(2,'0')}:00`;
         break;
       case 1: // 타이머
         const timerMinutes = parseInt(document.getElementById('timerMinutes').value, 10) || 10;
@@ -665,6 +767,11 @@
   }
 
   startBtn.addEventListener('click', () => {
+    // 현재 모드 상태 업데이트
+    const state = modeStates[currentMode];
+    state.running = true;
+    state.paused = false;
+    
     startBtn.disabled = true;
     pauseBtn.disabled = false;
     stopBtn.disabled = false;
@@ -676,6 +783,7 @@
         cycles = parseInt(cyclesInput.value, 10);
         if (isNaN(workMinutes) || workMinutes <= 0 || isNaN(breakMinutes) || breakMinutes <= 0 || isNaN(cycles) || cycles <= 0) {
           alert('모든 입력값은 양의 정수여야 합니다.');
+          state.running = false;
           startBtn.disabled = false;
           pauseBtn.disabled = true;
           stopBtn.disabled = true;
@@ -683,6 +791,8 @@
         }
         currentCycle = 0;
         isWork = true;
+        state.currentCycle = 0;
+        state.isWork = true;
         startPomodoro();
         break;
       case 1: // 타이머
@@ -692,6 +802,9 @@
         startStopwatch();
         break;
     }
+    
+    // 타이머 참조를 상태에 저장
+    state.timer = timer;
   });
 
   stopBtn.addEventListener('click', stopTimer);
