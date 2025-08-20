@@ -780,7 +780,7 @@
     
     if (state.currentCycle >= state.cycles) {
       if (currentMode === 0) {
-        timerEl.textContent = '🎉 완료! 🎉';
+        timerEl.textContent = '🎉 끝! 🎉';
         document.getElementById('cycleInfo').textContent = `모든 사이클 완료!`;
       }
       state.running = false;
@@ -838,7 +838,7 @@
           waitingForUser = true;
           if (currentMode === 0) {
             mainContainer.classList.add('waiting-state');
-            timerEl.textContent = '클릭하여 계속';
+            timerEl.textContent = '계속하기';
             document.getElementById('cycleInfo').textContent = 
               `${state.currentCycle + 1}/${state.cycles} 사이클 - ${state.isWork ? '집중' : '휴식'} 완료!`;
           }
