@@ -231,75 +231,6 @@
     font-weight: 700;
     letter-spacing: 2px;
   }
-
-  /* 대기 상태 스타일링 */
-  .waiting-state {
-    position: relative;
-    animation: waitingPulse 2s infinite;
-  }
-  
-  @keyframes waitingPulse {
-    0%, 100% { 
-      background: #fff;
-      transform: scale(1);
-    }
-    50% { 
-      background: var(--accent);
-      transform: scale(1.02);
-    }
-  }
-  
-  /* 사이클 정보 표시 */
-  .cycle-info {
-    font-size: 12px;
-    color: var(--text-light);
-    margin-bottom: 4px;
-    min-height: 0px;
-    line-height: 1.2;
-  }
-  
-  /* 사운드 설정 */
-  .sound-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
-  }
-  
-  .sound-toggle label {
-    font-size: 11px;
-    color: var(--text-light);
-  }
-  
-  .toggle-switch {
-    position: relative;
-    width: 40px;
-    height: 20px;
-    background: #ddd;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-  
-  .toggle-switch.active {
-    background: var(--primary);
-  }
-  
-  .toggle-switch::after {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 16px;
-    height: 16px;
-    background: #fff;
-    border-radius: 50%;
-    transition: left 0.3s;
-  }
-  
-  .toggle-switch.active::after {
-    left: 22px;
-  }
   
   /* 버튼 그룹 */
   .btn-group {
@@ -352,6 +283,77 @@
     80%  { background: var(--accent); }
     100% { background: #fff; }
   }
+ /*  - 대기 상태 스타일링과 사이클 표시 */
+    .waiting-state {
+        position: relative;
+        animation: waitingPulse 2s infinite;
+    }
+
+    @keyframes waitingPulse {
+        0%, 100% { 
+        background: #fff;
+        transform: scale(1);
+        }
+        50% { 
+        background: var(--accent);
+        transform: scale(1.02);
+        }
+    }
+
+    .cycle-info {
+        font-size: 12px;
+        color: var(--text-light);
+        margin-bottom: 4px;
+        min-height: 0px;
+        line-height: 1.2;
+        display: none; /* 기본적으로 숨김 */
+        }
+
+    .cycle-info.show {
+        display: block; /* 뽀모도로 모드에서만 표시 */
+    }
+
+    .sound-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 8px;
+    }
+
+    .sound-toggle label {
+        font-size: 11px;
+        color: var(--text-light);
+    }
+
+    .toggle-switch {
+        position: relative;
+        width: 40px;
+        height: 20px;
+        background: #ddd;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: background 0.3s;
+    }
+
+    .toggle-switch.active {
+        background: var(--primary);
+    }
+
+    .toggle-switch::after {
+        content: '';
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 16px;
+        height: 16px;
+        background: #fff;
+        border-radius: 50%;
+        transition: left 0.3s;
+    }
+
+    .toggle-switch.active::after {
+        left: 22px;
+    }
 
   /* 반응형 디자인 */
   @media (max-width: 480px) {
@@ -382,12 +384,6 @@
     .inputs {
       margin-bottom: 0px;
     }
-    .cycle-info {
-      font-size: 11px;
-      margin-bottom: 2px;
-      line-height: 1.1;
-    }
-  }
     
     /* 뽀모도로 입력을 한 줄로 유지 */
     .pomodoro-inputs-wrapper {
@@ -447,13 +443,13 @@
     </div>
 
     <div class="settings-section">
-      <h4>사운드 설정</h4>
-      <div class="sound-toggle">
-        <label>알림음</label>
-        <div class="toggle-switch active" id="soundToggle"></div>
+        <h4>사운드 설정</h4>
+        <div class="sound-toggle">
+          <label>알림음</label>
+          <div class="toggle-switch active" id="soundToggle"></div>
+        </div>
       </div>
-    </div>
-    
+      
     <div class="settings-section">
       <h4>테마 색상</h4>
       
@@ -522,7 +518,7 @@
 // 모드 관리
   let currentMode = 0; // 0: 뽀모도로, 1: 타이머, 2: 스톱워치
   let soundEnabled = true;
-  let waitingForUser = false;
+  let waitingForUser = false;   
 
   const statusEl = document.getElementById('status');
   const timerEl = document.getElementById('timer');
@@ -550,7 +546,14 @@
     document.documentElement.style.setProperty('--accent', accent);
   }
 
-    // 설정 저장
+// 각 모드별 상태 저장
+  let modeStates = {
+    0: { running: false, paused: false, timer: null, totalSeconds: 0, currentCycle: 0, isWork: true }, // 뽀모도로
+    1: { running: false, paused: false, timer: null, totalSeconds: 0 }, // 타이머
+    2: { running: false, paused: false, timer: null, totalSeconds: 0 }  // 스톱워치
+  };
+
+  // 설정 저장
   function saveSettings() {
     const settings = {
       currentMode,
@@ -564,7 +567,7 @@
     };
     localStorage.setItem('timerSettings', JSON.stringify(settings));
   }
-  
+
   // 설정 불러오기
   function loadSettings() {
     const saved = localStorage.getItem('timerSettings');
@@ -595,13 +598,6 @@
       document.getElementById('soundToggle').classList.toggle('active', soundEnabled);
     }
   }
-  
-  // 각 모드별 상태 저장
-  let modeStates = {
-    0: { running: false, paused: false, timer: null, totalSeconds: 0, currentCycle: 0, isWork: true }, // 뽀모도로
-    1: { running: false, paused: false, timer: null, totalSeconds: 0 }, // 타이머
-    2: { running: false, paused: false, timer: null, totalSeconds: 0 }  // 스톱워치
-  };
 
   // 모드 변경
   modeOptions.forEach(option => {
@@ -660,17 +656,21 @@
   function updateMode() {
     const pomodoroInputs = document.getElementById('pomodoroInputs');
     const timerInputs = document.getElementById('timerInputs');
+    const cycleInfo = document.getElementById('cycleInfo');
     
     // 모든 입력 섹션 숨기기
     pomodoroInputs.classList.add('hidden');
     timerInputs.classList.add('hidden');
+    cycleInfo.classList.remove('show'); // 사이클 정보 숨기기
     
     switch(currentMode) {
       case 0: // 뽀모도로
         pomodoroInputs.classList.remove('hidden');
+        cycleInfo.classList.add('show'); // 뽀모도로에서만 사이클 정보 표시
         const state0 = modeStates[0];
         if (!state0.running) {
           timerEl.textContent = `${workInput.value.toString().padStart(2,'0')}:00`;
+          cycleInfo.textContent = ''; // 초기 상태에서는 빈 텍스트
         } else {
           updateTimerDisplay(state0);
         }
@@ -925,13 +925,13 @@
   }
 
   function stopTimer() {
-      // 대기 상태 초기화
-      waitingForUser = false;
-      mainContainer.classList.remove('waiting-state');
-      
-      const state = modeStates[currentMode];
-      
-      clearInterval(state.timer);
+    // 대기 상태 초기화
+    waitingForUser = false;
+    mainContainer.classList.remove('waiting-state');
+    
+    const state = modeStates[currentMode];
+    
+    clearInterval(state.timer);
     
     // 현재 모드 상태 초기화
     state.running = false;
@@ -946,6 +946,7 @@
       state.currentCycle = 0;
       state.isWork = true;
       timerEl.textContent = `${workInput.value.toString().padStart(2,'0')}:00`;
+      document.getElementById('cycleInfo').textContent = ''; // 사이클 정보 초기화
     } else if (currentMode === 1) { // 타이머
       const timerMinutes = parseInt(document.getElementById('timerMinutes').value, 10) || 10;
       timerEl.textContent = `${timerMinutes.toString().padStart(2,'0')}:00`;
@@ -1016,7 +1017,7 @@
     }
   });
 
-stopBtn.addEventListener('click', stopTimer);
+  stopBtn.addEventListener('click', stopTimer);
   pauseBtn.addEventListener('click', pauseTimer);
 
   // 대기 상태에서 클릭하면 다음 타이머 시작
@@ -1054,6 +1055,7 @@ stopBtn.addEventListener('click', stopTimer);
 
   // 초기 모드 설정
   updateMode();
+
 </script>
 </body>
 </html>
