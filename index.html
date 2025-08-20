@@ -301,16 +301,20 @@
     }
 
     .cycle-info {
-        font-size: 12px;
+        position: absolute;
+        top: 50px;
+        left: 16px;
+        right: 16px;
+        font-size: 11px;
         color: var(--text-light);
-        margin-bottom: 4px;
-        min-height: 0px;
         line-height: 1.2;
-        display: none; /* 기본적으로 숨김 */
+        display: none;
+        text-align: center;
+        z-index: 1;
         }
 
     .cycle-info.show {
-        display: block; /* 뽀모도로 모드에서만 표시 */
+        display: block;
     }
 
     .sound-toggle {
@@ -377,6 +381,12 @@
       padding: 5px 8px;
       min-width: 45px;
     }
+    .cycle-info {
+        top: 45px;
+        left: 12px;
+        right: 12px;
+        font-size: 10px;
+    }
     .settings-panel {
       min-width: 160px;
       padding: 12px;
@@ -425,6 +435,7 @@
 </head>
 <body>
 <div class="timer-container" id="mainContainer">
+    <div class="cycle-info" id="cycleInfo"></div>
   
   <!-- 상단 컨트롤 버튼들 -->
   <div class="top-controls">
@@ -498,7 +509,6 @@
     </div>
   </div>
 
-  <div class="cycle-info" id="cycleInfo"></div>
   <div id="timer">25:00</div>
 
   <div class="btn-group">
