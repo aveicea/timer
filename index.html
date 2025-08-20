@@ -35,75 +35,6 @@
     box-sizing: border-box;
   }
   
-  /* 대기 상태 스타일링 */
-  .waiting-state {
-    position: relative;
-    animation: waitingPulse 2s infinite;
-    cursor: pointer;
-  }
-
-  @keyframes waitingPulse {
-    0%, 100% { 
-      background: #fff;
-      transform: scale(1);
-    }
-    50% { 
-      background: var(--accent);
-      transform: scale(1.02);
-    }
-  }
-
-  /* 사이클 정보 표시 */
-  .cycle-info {
-    font-size: 14px;
-    color: var(--text-light);
-    margin-bottom: 8px;
-    min-height: 20px;
-  }
-
-  /* 사운드 설정 */
-  .sound-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 8px;
-  }
-
-  .sound-toggle label {
-    font-size: 11px;
-    color: var(--text-light);
-  }
-
-  .toggle-switch {
-    position: relative;
-    width: 40px;
-    height: 20px;
-    background: #ddd;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: background 0.3s;
-  }
-
-  .toggle-switch.active {
-    background: var(--primary);
-  }
-
-  .toggle-switch::after {
-    content: '';
-    position: absolute;
-    top: 2px;
-    left: 2px;
-    width: 16px;
-    height: 16px;
-    background: #fff;
-    border-radius: 50%;
-    transition: left 0.3s;
-  }
-
-  .toggle-switch.active::after {
-    left: 22px;
-  }
-  
   /* 상단 버튼들 */
   .top-controls {
     position: absolute;
@@ -300,6 +231,74 @@
     font-weight: 700;
     letter-spacing: 2px;
   }
+
+  /* 대기 상태 스타일링 */
+  .waiting-state {
+    position: relative;
+    animation: waitingPulse 2s infinite;
+  }
+  
+  @keyframes waitingPulse {
+    0%, 100% { 
+      background: #fff;
+      transform: scale(1);
+    }
+    50% { 
+      background: var(--accent);
+      transform: scale(1.02);
+    }
+  }
+  
+  /* 사이클 정보 표시 */
+  .cycle-info {
+    font-size: 14px;
+    color: var(--text-light);
+    margin-bottom: 8px;
+    min-height: 20px;
+  }
+  
+  /* 사운드 설정 */
+  .sound-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+  
+  .sound-toggle label {
+    font-size: 11px;
+    color: var(--text-light);
+  }
+  
+  .toggle-switch {
+    position: relative;
+    width: 40px;
+    height: 20px;
+    background: #ddd;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .toggle-switch.active {
+    background: var(--primary);
+  }
+  
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 16px;
+    height: 16px;
+    background: #fff;
+    border-radius: 50%;
+    transition: left 0.3s;
+  }
+  
+  .toggle-switch.active::after {
+    left: 22px;
+  }
   
   /* 버튼 그룹 */
   .btn-group {
@@ -439,7 +438,7 @@
         <button class="mode-option" data-mode="2">스톱워치</button>
       </div>
     </div>
-    
+
     <div class="settings-section">
       <h4>사운드 설정</h4>
       <div class="sound-toggle">
@@ -496,7 +495,6 @@
     </div>
   </div>
 
-  <div class="cycle-info" id="cycleInfo"></div>
   <div id="timer">25:00</div>
 
   <div class="btn-group">
@@ -513,10 +511,8 @@
   let isWork = true;
   let timer, totalSeconds, running = false, paused = false;
   
-  // 모드 관리
+// 모드 관리
   let currentMode = 0; // 0: 뽀모도로, 1: 타이머, 2: 스톱워치
-  
-  // 새로 추가된 변수들
   let soundEnabled = true;
   let waitingForUser = false;
 
@@ -539,7 +535,6 @@
   const primaryPicker = document.getElementById('primaryPicker');
   const accentPicker = document.getElementById('accentPicker');
   const modeOptions = document.querySelectorAll('.mode-option');
-  const soundToggle = document.getElementById('soundToggle');
 
   // 초기 테마 설정
   function updateTheme(primary, accent) {
@@ -547,20 +542,13 @@
     document.documentElement.style.setProperty('--accent', accent);
   }
 
-  // 각 모드별 상태 저장
-  let modeStates = {
-    0: { running: false, paused: false, timer: null, totalSeconds: 0, currentCycle: 0, isWork: true }, // 뽀모도로
-    1: { running: false, paused: false, timer: null, totalSeconds: 0 }, // 타이머
-    2: { running: false, paused: false, timer: null, totalSeconds: 0 }  // 스톱워치
-  };
-
-  // 설정 저장
+    // 설정 저장
   function saveSettings() {
     const settings = {
       currentMode,
       soundEnabled,
-      primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--primary').trim(),
-      accentColor: getComputedStyle(document.documentElement).getPropertyValue('--accent').trim(),
+      primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--primary'),
+      accentColor: getComputedStyle(document.documentElement).getPropertyValue('--accent'),
       workMinutes: workInput.value,
       breakMinutes: breakInput.value,
       cycles: cyclesInput.value,
@@ -568,58 +556,44 @@
     };
     localStorage.setItem('timerSettings', JSON.stringify(settings));
   }
-
+  
   // 설정 불러오기
   function loadSettings() {
     const saved = localStorage.getItem('timerSettings');
     if (saved) {
-      try {
-        const settings = JSON.parse(saved);
-        currentMode = settings.currentMode || 0;
-        soundEnabled = settings.soundEnabled !== false;
-        
-        if (settings.primaryColor) {
-          document.documentElement.style.setProperty('--primary', settings.primaryColor);
-          primaryPicker.value = settings.primaryColor;
-        }
-        if (settings.accentColor) {
-          document.documentElement.style.setProperty('--accent', settings.accentColor);
-          accentPicker.value = settings.accentColor;
-        }
-        
-        workInput.value = settings.workMinutes || 25;
-        breakInput.value = settings.breakMinutes || 5;
-        cyclesInput.value = settings.cycles || 4;
-        document.getElementById('timerMinutes').value = settings.timerMinutes || 10;
-        
-        // UI 업데이트
-        modeOptions.forEach((opt, index) => {
-          opt.classList.toggle('active', index === currentMode);
-        });
-        
-        soundToggle.classList.toggle('active', soundEnabled);
-        
-        // 색상 옵션 active 상태 업데이트
-        updateColorOptionActive();
-      } catch (e) {
-        console.warn('설정 불러오기 실패:', e);
+      const settings = JSON.parse(saved);
+      currentMode = settings.currentMode || 0;
+      soundEnabled = settings.soundEnabled !== false;
+      
+      if (settings.primaryColor) {
+        document.documentElement.style.setProperty('--primary', settings.primaryColor);
+        primaryPicker.value = settings.primaryColor;
       }
+      if (settings.accentColor) {
+        document.documentElement.style.setProperty('--accent', settings.accentColor);
+        accentPicker.value = settings.accentColor;
+      }
+      
+      workInput.value = settings.workMinutes || 25;
+      breakInput.value = settings.breakMinutes || 5;
+      cyclesInput.value = settings.cycles || 4;
+      document.getElementById('timerMinutes').value = settings.timerMinutes || 10;
+      
+      // UI 업데이트
+      modeOptions.forEach((opt, index) => {
+        opt.classList.toggle('active', index === currentMode);
+      });
+      
+      document.getElementById('soundToggle').classList.toggle('active', soundEnabled);
     }
   }
-
-  // 색상 옵션 active 상태 업데이트
-  function updateColorOptionActive() {
-    const currentPrimary = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim();
-    const currentAccent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
-    
-    document.querySelectorAll('[data-type="primary"]').forEach(opt => {
-      opt.classList.toggle('active', opt.dataset.color === currentPrimary);
-    });
-    
-    document.querySelectorAll('[data-type="accent"]').forEach(opt => {
-      opt.classList.toggle('active', opt.dataset.color === currentAccent);
-    });
-  }
+  
+  // 각 모드별 상태 저장
+  let modeStates = {
+    0: { running: false, paused: false, timer: null, totalSeconds: 0, currentCycle: 0, isWork: true }, // 뽀모도로
+    1: { running: false, paused: false, timer: null, totalSeconds: 0 }, // 타이머
+    2: { running: false, paused: false, timer: null, totalSeconds: 0 }  // 스톱워치
+  };
 
   // 모드 변경
   modeOptions.forEach(option => {
@@ -634,7 +608,6 @@
       // 새 모드 상태 복원
       restoreModeState();
       updateMode();
-      saveSettings();
     });
   });
 
@@ -684,17 +657,12 @@
     pomodoroInputs.classList.add('hidden');
     timerInputs.classList.add('hidden');
     
-    // 대기 상태 초기화
-    waitingForUser = false;
-    mainContainer.classList.remove('waiting-state');
-    
     switch(currentMode) {
       case 0: // 뽀모도로
         pomodoroInputs.classList.remove('hidden');
         const state0 = modeStates[0];
         if (!state0.running) {
           timerEl.textContent = `${workInput.value.toString().padStart(2,'0')}:00`;
-          document.getElementById('cycleInfo').textContent = '';
         } else {
           updateTimerDisplay(state0);
         }
@@ -708,7 +676,6 @@
         } else {
           updateTimerDisplay(state1);
         }
-        document.getElementById('cycleInfo').textContent = '';
         break;
       case 2: // 스톱워치
         // 스톱워치는 입력 영역이 없으므로 빈 공간으로 동일한 높이 유지
@@ -719,7 +686,6 @@
         } else {
           updateTimerDisplay(state2);
         }
-        document.getElementById('cycleInfo').textContent = '';
         break;
     }
   }
@@ -735,13 +701,6 @@
     if (!settingsPanel.contains(e.target) && e.target !== settingsBtn) {
       settingsPanel.classList.remove('active');
     }
-  });
-
-  // 사운드 토글
-  soundToggle.addEventListener('click', () => {
-    soundEnabled = !soundEnabled;
-    soundToggle.classList.toggle('active', soundEnabled);
-    saveSettings();
   });
 
   // 색상 옵션 선택
@@ -779,11 +738,6 @@
     document.documentElement.style.setProperty('--accent', color);
     document.querySelectorAll('[data-type="accent"]').forEach(opt => opt.classList.remove('active'));
     saveSettings();
-  });
-
-  // 입력값 변경 시 설정 저장
-  [workInput, breakInput, cyclesInput, document.getElementById('timerMinutes')].forEach(input => {
-    input.addEventListener('change', saveSettings);
   });
 
   function updateTimer() {
@@ -886,15 +840,6 @@
     }, 1000);
   }
 
-  // 대기 상태에서 클릭하면 다음 타이머 시작
-  mainContainer.addEventListener('click', () => {
-    if (waitingForUser && currentMode === 0) {
-      waitingForUser = false;
-      mainContainer.classList.remove('waiting-state');
-      startPomodoro();
-    }
-  });
-
   function startRegularTimer() {
     const state = modeStates[1];
     const minutes = parseInt(document.getElementById('timerMinutes').value, 10);
@@ -930,10 +875,8 @@
         
         if (state.totalSeconds <= 0) {
           clearInterval(state.timer);
-          if (soundEnabled) {
-            alarmSound.currentTime = 0;
-            alarmSound.play();
-          }
+          alarmSound.currentTime = 0;
+          alarmSound.play();
           if (currentMode === 1) {
             flashScreen(3);
             timerEl.textContent = '⏰ 완료!';
@@ -974,13 +917,13 @@
   }
 
   function stopTimer() {
-    // 대기 상태 초기화
-    waitingForUser = false;
-    mainContainer.classList.remove('waiting-state');
-    
-    const state = modeStates[currentMode];
-    
-    clearInterval(state.timer);
+      // 대기 상태 초기화
+      waitingForUser = false;
+      mainContainer.classList.remove('waiting-state');
+      
+      const state = modeStates[currentMode];
+      
+      clearInterval(state.timer);
     
     // 현재 모드 상태 초기화
     state.running = false;
@@ -995,7 +938,6 @@
       state.currentCycle = 0;
       state.isWork = true;
       timerEl.textContent = `${workInput.value.toString().padStart(2,'0')}:00`;
-      document.getElementById('cycleInfo').textContent = '';
     } else if (currentMode === 1) { // 타이머
       const timerMinutes = parseInt(document.getElementById('timerMinutes').value, 10) || 10;
       timerEl.textContent = `${timerMinutes.toString().padStart(2,'0')}:00`;
@@ -1066,15 +1008,44 @@
     }
   });
 
-  stopBtn.addEventListener('click', stopTimer);
+stopBtn.addEventListener('click', stopTimer);
   pauseBtn.addEventListener('click', pauseTimer);
 
-  // 페이지 로드 시 설정 불러오기
+  // 대기 상태에서 클릭하면 다음 타이머 시작
+  mainContainer.addEventListener('click', () => {
+    if (waitingForUser && currentMode === 0) {
+      waitingForUser = false;
+      mainContainer.classList.remove('waiting-state');
+      startPomodoro();
+    }
+  });
+
+  // 사운드 토글
   document.addEventListener('DOMContentLoaded', () => {
+    const soundToggle = document.getElementById('soundToggle');
+    if (soundToggle) {
+      soundToggle.addEventListener('click', () => {
+        soundEnabled = !soundEnabled;
+        soundToggle.classList.toggle('active', soundEnabled);
+        saveSettings();
+      });
+    }
+  });
+
+  // 설정 저장 이벤트들
+  [workInput, breakInput, cyclesInput].forEach(input => {
+    input.addEventListener('change', saveSettings);
+  });
+  document.getElementById('timerMinutes').addEventListener('change', saveSettings);
+
+  // 페이지 로드 시 설정 불러오기
+  window.addEventListener('load', () => {
     loadSettings();
     updateMode();
   });
 
   // 초기 모드 설정
-  loadSettings();
   updateMode();
+</script>
+</body>
+</html>
