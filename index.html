@@ -473,7 +473,7 @@
           <div class="color-option" data-color="#96ceb4" data-type="primary" style="background: #96ceb4;"></div>
           <div class="color-option" data-color="#9b59b6" data-type="primary" style="background: #9b59b6;"></div>
           <div class="color-option" data-color="#f39c12" data-type="primary" style="background: #f39c12;"></div>
-          <input type="color" class="color-picker" id="primaryPicker" value="#6b8eef">
+          <input type="color" class="color-picker" id="primaryPicker" value="#B0B0B0">
         </div>
       </div>
       
@@ -486,7 +486,7 @@
           <div class="color-option" data-color="#feca57" data-type="accent" style="background: #feca57;"></div>
           <div class="color-option" data-color="#e74c3c" data-type="accent" style="background: #e74c3c;"></div>
           <div class="color-option" data-color="#95a5a6" data-type="accent" style="background: #95a5a6;"></div>
-          <input type="color" class="color-picker" id="accentPicker" value="#f99ca9">
+          <input type="color" class="color-picker" id="accentPicker" value="#EDF3EC">
         </div>
       </div>
     </div>
@@ -780,7 +780,7 @@
     
     if (state.currentCycle >= state.cycles) {
       if (currentMode === 0) {
-        timerEl.textContent = '🎉 끝! 🎉';
+        timerEl.textContent = '🎉 완료! 🎉';
         document.getElementById('cycleInfo').textContent = `모든 사이클 완료!`;
       }
       state.running = false;
@@ -838,7 +838,7 @@
           waitingForUser = true;
           if (currentMode === 0) {
             mainContainer.classList.add('waiting-state');
-            timerEl.textContent = '계속하기';
+            timerEl.textContent = '클릭하여 계속';
             document.getElementById('cycleInfo').textContent = 
               `${state.currentCycle + 1}/${state.cycles} 사이클 - ${state.isWork ? '집중' : '휴식'} 완료!`;
           }
