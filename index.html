@@ -66,20 +66,32 @@
   
   /* 설정 패널 */
   .settings-panel {
-    position: absolute;
-    top: 40px;
-    right: 8px;
-    background: #fff;
-    border: 1px solid var(--primary);
-    border-radius: 12px;
-    padding: 16px;
-    box-shadow: var(--shadow);
     display: none;
-    z-index: 10;
-    min-width: 200px;
+    width: 100%;
+    padding-top: 8px;
   }
   .settings-panel.active {
     display: block;
+  }
+
+  /* 타이머 컨텐츠 */
+  .timer-content {
+    display: block;
+  }
+  .timer-content.hidden {
+    display: none;
+  }
+
+  .timer-content .top-controls {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+  }
+
+  .settings-panel .top-controls {
+    position: absolute;
+    top: 8px;
+    left: 8px;
   }
   .settings-section {
     margin-bottom: 12px;
@@ -435,15 +447,49 @@
 </head>
 <body>
 <div class="timer-container" id="mainContainer">
+  <!-- 타이머 화면 -->
+  <div class="timer-content" id="timerContent">
     <div class="cycle-info" id="cycleInfo"></div>
-  
-  <!-- 상단 컨트롤 버튼들 -->
-  <div class="top-controls">
-    <button class="top-btn" id="settingsBtn" title="설정">⚙️</button>
+
+    <!-- 상단 컨트롤 버튼들 -->
+    <div class="top-controls">
+      <button class="top-btn" id="settingsBtn" title="설정">⚙️</button>
+    </div>
+
+    <div class="inputs" id="inputSection">
+      <div id="pomodoroInputs">
+        <div class="pomodoro-inputs-wrapper">
+          <input type="number" id="workInput" value="25" min="1" max="180">분 /
+          <input type="number" id="breakInput" value="5" min="1" max="60">분 /
+          <input type="number" id="cyclesInput" value="4" min="1" max="20">회
+        </div>
+      </div>
+      <div id="timerInputs" class="hidden">
+        <div style="display: flex; justify-content: center; align-items: center;">
+          <label>
+            <input type="number" id="timerMinutes" value="10" min="1" max="999">분
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <div id="timer">25:00</div>
+
+    <div class="btn-group">
+      <button class="control-btn" id="startBtn">START</button>
+      <button class="control-btn" id="pauseBtn" disabled>PAUSE</button>
+      <button class="control-btn" id="stopBtn" disabled>RESET</button>
+    </div>
   </div>
-  
+
   <!-- 설정 패널 -->
   <div class="settings-panel" id="settingsPanel">
+    <div class="top-controls">
+      <button class="top-btn" id="backBtn" title="뒤로가기">←</button>
+    </div>
+
+    <h3 style="margin: 0 0 16px 0; text-align: center; color: var(--text-dark); font-size: 18px;">설정</h3>
+
     <div class="settings-section">
       <h4>모드 선택</h4>
       <div class="mode-options">
@@ -492,31 +538,6 @@
     </div>
   </div>
 
-  <div class="inputs" id="inputSection">
-    <div id="pomodoroInputs">
-      <div class="pomodoro-inputs-wrapper">
-        <input type="number" id="workInput" value="25" min="1" max="180">분 / 
-        <input type="number" id="breakInput" value="5" min="1" max="60">분 / 
-        <input type="number" id="cyclesInput" value="4" min="1" max="20">회
-      </div>
-    </div>
-    <div id="timerInputs" class="hidden">
-      <div style="display: flex; justify-content: center; align-items: center;">
-        <label>
-          <input type="number" id="timerMinutes" value="10" min="1" max="999">분
-        </label>
-      </div>
-    </div>
-  </div>
-
-  <div id="timer">25:00</div>
-
-  <div class="btn-group">
-    <button class="control-btn" id="startBtn">START</button>
-    <button class="control-btn" id="pauseBtn" disabled>PAUSE</button>
-    <button class="control-btn" id="stopBtn" disabled>RESET</button>
-  </div>
-
 </div>
 <audio id="alarmSound" src="https://actions.google.com/sounds/v1/alarms/alarm_clock.ogg" preload="auto"></audio>
 <script>
@@ -550,6 +571,8 @@
   // 설정 관련
   const settingsBtn = document.getElementById('settingsBtn');
   const settingsPanel = document.getElementById('settingsPanel');
+  const timerContent = document.getElementById('timerContent');
+  const backBtn = document.getElementById('backBtn');
   const primaryPicker = document.getElementById('primaryPicker');
   const accentPicker = document.getElementById('accentPicker');
   const modeOptions = document.querySelectorAll('.mode-option');
@@ -715,17 +738,18 @@
     }
   }
 
-  // 설정 패널 토글
+  // 설정 화면 전환
   settingsBtn.addEventListener('click', (e) => {
     e.stopPropagation();
-    settingsPanel.classList.toggle('active');
+    timerContent.classList.add('hidden');
+    settingsPanel.classList.add('active');
   });
 
-  // 패널 외부 클릭시 닫기
-  document.addEventListener('click', (e) => {
-    if (!settingsPanel.contains(e.target) && e.target !== settingsBtn) {
-      settingsPanel.classList.remove('active');
-    }
+  // 뒤로가기 버튼
+  backBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    settingsPanel.classList.remove('active');
+    timerContent.classList.remove('hidden');
   });
 
   // 색상 옵션 선택
@@ -1045,7 +1069,7 @@
   pauseBtn.addEventListener('click', pauseTimer);
 
   // 대기 상태에서 클릭하면 다음 타이머 시작
-  mainContainer.addEventListener('click', () => {
+  timerContent.addEventListener('click', () => {
     if (waitingForUser && currentMode === 0) {
       waitingForUser = false;
       mainContainer.classList.remove('waiting-state');
