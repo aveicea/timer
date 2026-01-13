@@ -67,10 +67,12 @@
   /* 설정 패널 */
   .settings-panel {
     display: none;
-    width: 100%;
-    padding-top: 8px;
-    max-height: 400px;
+    width: 85%;
+    margin: 0 auto;
+    padding-top: 4px;
+    max-height: 320px;
     overflow-y: auto;
+    position: relative;
   }
   .settings-panel.active {
     display: block;
@@ -79,6 +81,7 @@
   /* 타이머 컨텐츠 */
   .timer-content {
     display: block;
+    position: relative;
   }
   .timer-content.hidden {
     display: none;
@@ -92,35 +95,35 @@
 
   .settings-panel .top-controls {
     position: absolute;
-    top: 8px;
-    left: 8px;
+    top: 4px;
+    left: 0px;
   }
   .settings-section {
-    margin-bottom: 12px;
+    margin-bottom: 8px;
   }
   .settings-section:last-child {
     margin-bottom: 0;
   }
   .settings-section h4 {
-    margin: 0 0 6px 0;
+    margin: 0 0 4px 0;
     color: var(--text-dark);
-    font-size: 12px;
+    font-size: 11px;
   }
   
   /* 모드 선택 */
   .mode-options {
     display: flex;
-    gap: 4px;
-    margin-bottom: 8px;
+    gap: 3px;
+    margin-bottom: 0px;
   }
   .mode-option {
-    padding: 4px 8px;
+    padding: 3px 6px;
     border: 1px solid var(--primary);
     background: transparent;
     color: var(--text-light);
-    border-radius: 6px;
+    border-radius: 4px;
     cursor: pointer;
-    font-size: 10px;
+    font-size: 9px;
     transition: all 0.2s;
   }
   .mode-option.active {
@@ -131,26 +134,26 @@
   
   /* 색상 설정 */
   .color-section {
-    margin-bottom: 8px;
+    margin-bottom: 6px;
   }
   .color-section:last-child {
     margin-bottom: 0;
   }
   .color-section label {
     display: block;
-    font-size: 11px;
+    font-size: 10px;
     color: var(--text-light);
-    margin-bottom: 4px;
+    margin-bottom: 3px;
   }
   .color-row {
     display: flex;
-    gap: 4px;
+    gap: 3px;
     align-items: center;
-    margin-bottom: 4px;
+    margin-bottom: 3px;
   }
   .color-option {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     border-radius: 50%;
     border: 2px solid #fff;
     cursor: pointer;
@@ -165,8 +168,8 @@
     transform: scale(1.1);
   }
   .color-picker {
-    width: 20px;
-    height: 20px;
+    width: 16px;
+    height: 16px;
     border: none;
     border-radius: 50%;
     cursor: pointer;
@@ -344,20 +347,20 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 8px;
+        margin-bottom: 0px;
     }
 
     .sound-toggle label {
-        font-size: 11px;
+        font-size: 10px;
         color: var(--text-light);
     }
 
     .toggle-switch {
         position: relative;
-        width: 40px;
-        height: 20px;
+        width: 34px;
+        height: 18px;
         background: #ddd;
-        border-radius: 20px;
+        border-radius: 18px;
         cursor: pointer;
         transition: background 0.3s;
     }
@@ -371,15 +374,15 @@
         position: absolute;
         top: 2px;
         left: 2px;
-        width: 16px;
-        height: 16px;
+        width: 14px;
+        height: 14px;
         background: #fff;
         border-radius: 50%;
         transition: left 0.3s;
     }
 
     .toggle-switch.active::after {
-        left: 22px;
+        left: 18px;
     }
 
   /* 반응형 디자인 */
@@ -499,7 +502,7 @@
       <button class="top-btn" id="backBtn" title="뒤로가기">←</button>
     </div>
 
-    <h3 style="margin: 0 0 16px 0; text-align: center; color: var(--text-dark); font-size: 18px;">설정</h3>
+    <h3 style="margin: 0 0 10px 0; text-align: center; color: var(--text-dark); font-size: 14px; font-weight: 600;">설정</h3>
 
     <div class="settings-section">
       <h4>모드 선택</h4>
