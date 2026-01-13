@@ -67,10 +67,12 @@
   /* 설정 패널 */
   .settings-panel {
     display: none;
-    width: 100%;
+    width: 85%;
+    margin: 0 auto;
     padding-top: 4px;
     max-height: 320px;
     overflow-y: auto;
+    position: relative;
   }
   .settings-panel.active {
     display: block;
@@ -79,6 +81,7 @@
   /* 타이머 컨텐츠 */
   .timer-content {
     display: block;
+    position: relative;
   }
   .timer-content.hidden {
     display: none;
@@ -92,8 +95,8 @@
 
   .settings-panel .top-controls {
     position: absolute;
-    top: 8px;
-    left: 8px;
+    top: 4px;
+    left: 0px;
   }
   .settings-section {
     margin-bottom: 8px;
