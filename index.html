@@ -274,7 +274,7 @@
   
   /* 플래시 효과 */
   .flash {
-    animation: flash 0.4s linear 0s 1;
+    animation: flash 0.4s linear 0s 3;
   }
   @keyframes flash {
     0%   { background: #fff; }
@@ -528,7 +528,11 @@
 // 모드 관리
   let currentMode = 0; // 0: 뽀모도로, 1: 타이머, 2: 스톱워치
   let soundEnabled = true;
-  let waitingForUser = false;   
+  let waitingForUser = false;
+
+  // 색상 캐싱 (getComputedStyle 최적화)
+  let cachedPrimaryColor = '#B0B0B0';
+  let cachedAccentColor = '#EDF3EC';   
 
   const statusEl = document.getElementById('status');
   const timerEl = document.getElementById('timer');
@@ -568,8 +572,9 @@
     const settings = {
       currentMode,
       soundEnabled,
-      primaryColor: getComputedStyle(document.documentElement).getPropertyValue('--primary'),
-      accentColor: getComputedStyle(document.documentElement).getPropertyValue('--accent'),
+      // 최적화: 캐시된 색상 사용
+      primaryColor: cachedPrimaryColor,
+      accentColor: cachedAccentColor,
       workMinutes: workInput.value,
       breakMinutes: breakInput.value,
       cycles: cyclesInput.value,
@@ -585,26 +590,28 @@
       const settings = JSON.parse(saved);
       currentMode = settings.currentMode || 0;
       soundEnabled = settings.soundEnabled !== false;
-      
+
       if (settings.primaryColor) {
+        cachedPrimaryColor = settings.primaryColor;
         document.documentElement.style.setProperty('--primary', settings.primaryColor);
         primaryPicker.value = settings.primaryColor;
       }
       if (settings.accentColor) {
+        cachedAccentColor = settings.accentColor;
         document.documentElement.style.setProperty('--accent', settings.accentColor);
         accentPicker.value = settings.accentColor;
       }
-      
+
       workInput.value = settings.workMinutes || 25;
       breakInput.value = settings.breakMinutes || 5;
       cyclesInput.value = settings.cycles || 4;
       document.getElementById('timerMinutes').value = settings.timerMinutes || 10;
-      
+
       // UI 업데이트
       modeOptions.forEach((opt, index) => {
         opt.classList.toggle('active', index === currentMode);
       });
-      
+
       document.getElementById('soundToggle').classList.toggle('active', soundEnabled);
     }
   }
@@ -727,18 +734,22 @@
     option.addEventListener('click', () => {
       const color = option.dataset.color;
       const type = option.dataset.type;
-      
-      document.querySelectorAll(`[data-type="${type}"]`).forEach(opt => opt.classList.remove('active'));
+
+      // 최적화: 활성화된 것만 찾아서 제거
+      document.querySelector(`[data-type="${type}"].active`)?.classList.remove('active');
       option.classList.add('active');
-      
+
       document.documentElement.style.setProperty(`--${type}`, color);
-      
+
+      // 색상 캐시 업데이트
       if (type === 'primary') {
+        cachedPrimaryColor = color;
         primaryPicker.value = color;
       } else {
+        cachedAccentColor = color;
         accentPicker.value = color;
       }
-      
+
       saveSettings();
     });
   });
@@ -746,15 +757,19 @@
   // 커스텀 색상 선택
   primaryPicker.addEventListener('change', (e) => {
     const color = e.target.value;
+    cachedPrimaryColor = color; // 캐시 업데이트
     document.documentElement.style.setProperty('--primary', color);
-    document.querySelectorAll('[data-type="primary"]').forEach(opt => opt.classList.remove('active'));
+    // 최적화: 활성화된 것만 찾아서 제거
+    document.querySelector('[data-type="primary"].active')?.classList.remove('active');
     saveSettings();
   });
 
   accentPicker.addEventListener('change', (e) => {
     const color = e.target.value;
+    cachedAccentColor = color; // 캐시 업데이트
     document.documentElement.style.setProperty('--accent', color);
-    document.querySelectorAll('[data-type="accent"]').forEach(opt => opt.classList.remove('active'));
+    // 최적화: 활성화된 것만 찾아서 제거
+    document.querySelector('[data-type="accent"].active')?.classList.remove('active');
     saveSettings();
   });
 
@@ -766,13 +781,10 @@
   }
 
   function flashScreen(times=3) {
-    let count = 0;
-    const flashFn = () => {
-      mainContainer.classList.add('flash');
-      setTimeout(()=> mainContainer.classList.remove('flash'), 290);
-      if (++count < times) setTimeout(flashFn, 400);
-    };
-    flashFn();
+    // 최적화: CSS animation 사용
+    mainContainer.classList.add('flash');
+    // 애니메이션 완료 후 클래스 제거
+    setTimeout(() => mainContainer.classList.remove('flash'), times * 400);
   }
 
   function startPomodoro() {
@@ -831,7 +843,7 @@
           // 알림 재생
           if (soundEnabled) {
             alarmSound.currentTime = 0;
-            alarmSound.play();
+            alarmSound.play().catch(() => {}); // Promise rejection 처리
           }
           
           // 대기 상태로 전환
@@ -893,8 +905,10 @@
         
         if (state.totalSeconds <= 0) {
           clearInterval(state.timer);
-          alarmSound.currentTime = 0;
-          alarmSound.play();
+          if (soundEnabled) {
+            alarmSound.currentTime = 0;
+            alarmSound.play().catch(() => {}); // Promise rejection 처리
+          }
           if (currentMode === 1) {
             flashScreen(3);
             timerEl.textContent = '⏰ 완료!';
