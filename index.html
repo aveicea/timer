@@ -37,27 +37,26 @@
   
   /* 상단 버튼들 */
   .top-controls {
-    position: absolute;
-    top: 8px;
-    right: 8px;
     display: flex;
     gap: 6px;
     z-index: 100;
   }
   
   .top-btn {
-    width: 28px;
-    height: 28px;
+    width: 24px;
+    height: 24px;
     border: none;
     background: transparent;
     color: var(--primary);
     border-radius: 50%;
     cursor: pointer;
-    font-size: 14px;
+    font-size: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: all 0.2s;
+    padding: 0;
+    line-height: 1;
   }
   .top-btn:hover {
     transform: scale(1.1);
@@ -90,14 +89,14 @@
 
   .timer-content .top-controls {
     position: absolute;
-    top: 0px;
-    right: 0px;
+    top: -2px;
+    right: -2px;
   }
 
   .settings-panel .top-controls {
     position: absolute;
-    top: 4px;
-    left: 0px;
+    top: 2px;
+    left: 2px;
   }
   .settings-section {
     margin-bottom: 8px;
@@ -432,7 +431,7 @@
     }
 
     .timer-container {
-      padding-top: 32px; /* 상단 여백 추가 */
+      padding-top: 28px; /* 상단 여백 추가 */
     }
   }
 
@@ -440,7 +439,7 @@
     .timer-container {
       min-width: 220px;
       padding: 10px;
-      padding-top: 36px;
+      padding-top: 28px;
     }
     label {
       font-size: 10px;
