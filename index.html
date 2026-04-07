@@ -503,8 +503,6 @@
       <button class="top-btn" id="backBtn" title="뒤로가기">←</button>
     </div>
 
-    <h3 style="margin: 0 0 10px 0; text-align: center; color: var(--text-dark); font-size: 14px; font-weight: 600;">설정</h3>
-
     <div class="settings-section">
       <h4>모드 선택</h4>
       <div class="mode-options">
@@ -521,36 +519,6 @@
           <div class="toggle-switch active" id="soundToggle"></div>
         </div>
       </div>
-      
-    <div class="settings-section">
-      <h4>테마 색상</h4>
-      
-      <div class="color-section">
-        <label>메인 색상</label>
-        <div class="color-row">
-          <div class="color-option active" data-color="#6b8eef" data-type="primary" style="background: #6b8eef;"></div>
-          <div class="color-option" data-color="#ff6b6b" data-type="primary" style="background: #ff6b6b;"></div>
-          <div class="color-option" data-color="#4ecdc4" data-type="primary" style="background: #4ecdc4;"></div>
-          <div class="color-option" data-color="#96ceb4" data-type="primary" style="background: #96ceb4;"></div>
-          <div class="color-option" data-color="#9b59b6" data-type="primary" style="background: #9b59b6;"></div>
-          <div class="color-option" data-color="#f39c12" data-type="primary" style="background: #f39c12;"></div>
-          <input type="color" class="color-picker" id="primaryPicker" value="#B0B0B0">
-        </div>
-      </div>
-      
-      <div class="color-section">
-        <label>강조 색상</label>
-        <div class="color-row">
-          <div class="color-option active" data-color="#f99ca9" data-type="accent" style="background: #f99ca9;"></div>
-          <div class="color-option" data-color="#4ecdc4" data-type="accent" style="background: #4ecdc4;"></div>
-          <div class="color-option" data-color="#45b7d1" data-type="accent" style="background: #45b7d1;"></div>
-          <div class="color-option" data-color="#feca57" data-type="accent" style="background: #feca57;"></div>
-          <div class="color-option" data-color="#e74c3c" data-type="accent" style="background: #e74c3c;"></div>
-          <div class="color-option" data-color="#95a5a6" data-type="accent" style="background: #95a5a6;"></div>
-          <input type="color" class="color-picker" id="accentPicker" value="#EDF3EC">
-        </div>
-      </div>
-    </div>
   </div>
 
 </div>
@@ -588,8 +556,6 @@
   const settingsPanel = document.getElementById('settingsPanel');
   const timerContent = document.getElementById('timerContent');
   const backBtn = document.getElementById('backBtn');
-  const primaryPicker = document.getElementById('primaryPicker');
-  const accentPicker = document.getElementById('accentPicker');
   const modeOptions = document.querySelectorAll('.mode-option');
 
   // 초기 테마 설정
@@ -632,12 +598,10 @@
       if (settings.primaryColor) {
         cachedPrimaryColor = settings.primaryColor;
         document.documentElement.style.setProperty('--primary', settings.primaryColor);
-        primaryPicker.value = settings.primaryColor;
       }
       if (settings.accentColor) {
         cachedAccentColor = settings.accentColor;
         document.documentElement.style.setProperty('--accent', settings.accentColor);
-        accentPicker.value = settings.accentColor;
       }
 
       workInput.value = settings.workMinutes || 25;
@@ -767,50 +731,7 @@
     timerContent.classList.remove('hidden');
   });
 
-  // 색상 옵션 선택
-  const colorOptions = document.querySelectorAll('.color-option');
-  colorOptions.forEach(option => {
-    option.addEventListener('click', () => {
-      const color = option.dataset.color;
-      const type = option.dataset.type;
-
-      // 최적화: 활성화된 것만 찾아서 제거
-      document.querySelector(`[data-type="${type}"].active`)?.classList.remove('active');
-      option.classList.add('active');
-
-      document.documentElement.style.setProperty(`--${type}`, color);
-
-      // 색상 캐시 업데이트
-      if (type === 'primary') {
-        cachedPrimaryColor = color;
-        primaryPicker.value = color;
-      } else {
-        cachedAccentColor = color;
-        accentPicker.value = color;
-      }
-
-      saveSettings();
-    });
-  });
-
-  // 커스텀 색상 선택
-  primaryPicker.addEventListener('change', (e) => {
-    const color = e.target.value;
-    cachedPrimaryColor = color; // 캐시 업데이트
-    document.documentElement.style.setProperty('--primary', color);
-    // 최적화: 활성화된 것만 찾아서 제거
-    document.querySelector('[data-type="primary"].active')?.classList.remove('active');
-    saveSettings();
-  });
-
-  accentPicker.addEventListener('change', (e) => {
-    const color = e.target.value;
-    cachedAccentColor = color; // 캐시 업데이트
-    document.documentElement.style.setProperty('--accent', color);
-    // 최적화: 활성화된 것만 찾아서 제거
-    document.querySelector('[data-type="accent"].active')?.classList.remove('active');
-    saveSettings();
-  });
+  // 색상 옵션 제거됨
 
   function updateTimer() {
     const state = modeStates[currentMode];
